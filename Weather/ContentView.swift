@@ -131,4 +131,3 @@ struct CurrWeatherView: View {
         .padding(.bottom, 40)
     }
 }
-
