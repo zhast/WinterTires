@@ -8,10 +8,13 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+    @State private var isNight = false
+    
     var body: some View {
         ZStack {
             // Set background to be blue gradient, ignoring save areas (dynamic island)
-            BackgroundView(topColor: .blue, bottomColor: Color("lightBlue"))
+            BackgroundView(isNight: $isNight) // Use binding bool ($) for variables that can change within a function
             
             VStack(spacing: 8) {
                 // Add city name. Remember order of modifiers matter because they pass down their views in order
@@ -33,11 +36,11 @@ struct ContentView: View {
                 
                 Button {
                     
-                    // What the button does
-                    print("Tapped")
+                    // Toggles between true and false for isNight when pressed
+                    isNight.toggle()
                 } label: {
                     // What the button looks like
-                    ButtonView(title: "Change Location", textColor: .blue, backgroundColor: .white)
+                    ButtonView(title: "Night Mode", textColor: .blue, backgroundColor: .white)
                 }
                 
                 Spacer()
@@ -80,11 +83,12 @@ struct WeatherDayView: View {
 
 struct BackgroundView: View {
     
-    var topColor: Color
-    var bottomColor: Color
+    // Parameters
+    @Binding var isNight: Bool
     
     var body: some View {
-        LinearGradient(colors: [topColor, bottomColor],
+        
+        LinearGradient(gradient: Gradient(colors: [isNight ? .black : .blue, isNight ? .gray : Color("lightBlue")]),
                        startPoint: .topLeading,
                        endPoint: .bottomTrailing)
         .edgesIgnoringSafeArea(.all)
