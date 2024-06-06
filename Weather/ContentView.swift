@@ -10,7 +10,8 @@ import SwiftUI
 struct ContentView: View {
     
     @State private var isNight = false
-    
+    @StateObject private var weatherViewModel = WeatherViewModel()
+
     var body: some View {
         ZStack {
             // Set background to be blue gradient, ignoring save areas (dynamic island)
@@ -20,17 +21,26 @@ struct ContentView: View {
                 // Add city name. Remember order of modifiers matter because they pass down their views in order
                 CityView(cityName: "San Francisco, CA") // Adds a default padding for spacing (so it doesn't hug notch)
                 
-                CurrWeatherView(imageName: "cloud.sun.fill", temperature: 19)
+//                CurrWeatherView(imageName: "cloud.sun.fill", temperature: 19)
                 
-                HStack(spacing: 20) {
-                    WeatherDayView(dayOfWeek: "MON", imageName: "cloud.sun.fill", temperature: 18)
-                    WeatherDayView(dayOfWeek: "TUES", imageName: "sun.max.fill", temperature: 22)
-                    WeatherDayView(dayOfWeek: "WEDS", imageName: "wind.snow", temperature: 16)
-                    WeatherDayView(dayOfWeek: "THURS", imageName: "sunset.fill", temperature: 19)
-                    WeatherDayView(dayOfWeek: "FRI", imageName: "snow", temperature: 11)
+            
 
 
+                VStack {
+                    if let weatherData = weatherViewModel.weatherData {
+                        ForEach(weatherData.days, id: \.datetime) { day in
+                            WeatherDayView(dayOfWeek: getDayOfWeek(from: day.datetime),
+                                           imageName: "cloud.sun.fill",
+                                           temperature: String(format: "%.1f", day.temp))
+                        }
+                    }
                 }
+                .onAppear {
+                    weatherViewModel.fetchWeatherData()
+                }
+                
+
+
                     
                 Spacer() // Pushes text to the top
                 
@@ -55,29 +65,31 @@ struct ContentView: View {
 
 // Right click "Extract subview" turns views into function when the nesting gets too crazy
 struct WeatherDayView: View {
-    
     var dayOfWeek: String
     var imageName: String
-    var temperature: Int
+    var temperature: String
     
     var body: some View {
-        VStack {
-            Text(dayOfWeek)
-                .font(.system(size: 16,
-                              weight: .medium,
-                              design: .default))
-                .foregroundColor(.white)
+        HStack {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(dayOfWeek)
+                    .font(.system(size: 16, weight: .medium, design: .default))
+                    .foregroundColor(.white)
+                
+                Text("\(temperature)°")
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundColor(.white)
+            }
+            
+            Spacer()
             
             Image(systemName: imageName)
-                .renderingMode(.original) // Keeps its colours
+                .renderingMode(.original)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 40, height: 40)
-            
-            Text("\(temperature)°")
-                .font(.system(size: 28, weight: .medium))
-                .foregroundColor(.white)
         }
+        .padding(.horizontal)
     }
 }
 
@@ -130,4 +142,15 @@ struct CurrWeatherView: View {
         }
         .padding(.bottom, 40)
     }
+}
+
+func getDayOfWeek(from dateString: String) -> String {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "yyyy-MM-dd"
+    
+    if let date = dateFormatter.date(from: dateString) {
+        dateFormatter.dateFormat = "EEE"
+        return dateFormatter.string(from: date)
+    }
+    return ""
 }
