@@ -8,16 +8,12 @@
 import SwiftUI
 
 struct ContentView: View {
-    
-    @State private var isNight = false
     @StateObject private var weatherViewModel = WeatherViewModel()
-
+    
     var body: some View {
         ZStack {
-            // Set background to be blue gradient, ignoring save areas (dynamic island)
-            BackgroundView(isNight: $isNight) // Use binding bool ($) for variables that can change within a function
-            
-            
+            // Use the BackgroundView without passing any parameters
+            BackgroundView()
             
             VStack {
                 
@@ -45,15 +41,6 @@ struct ContentView: View {
                 
                 Spacer() // Pushes text to the top
                 
-                Button {
-                    // Toggles between true and false for isNight when pressed
-                    isNight.toggle()
-                } label: {
-                    // What the button looks like
-                    ButtonView(title: "Night Mode", textColor: .blue, backgroundColor: .white)
-                }
-                
-                Spacer()
             }
             .onAppear {
                 weatherViewModel.fetchWeatherData()
@@ -114,28 +101,22 @@ struct WeatherDayView: View {
 }
 
 struct BackgroundView: View {
-    
-    // Parameters
-    @Binding var isNight: Bool
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
-        
-        LinearGradient(gradient: Gradient(colors: [isNight ? .black : .blue, isNight ? .gray : Color("lightBlue")]),
+        LinearGradient(gradient: Gradient(colors: [colorScheme == .dark ? .black : .blue, colorScheme == .dark ? .gray : Color("lightBlue")]),
                        startPoint: .topLeading,
                        endPoint: .bottomTrailing)
-        .edgesIgnoringSafeArea(.all)
+            .edgesIgnoringSafeArea(.all)
     }
 }
 
 struct CityView: View {
-    
     var cityName: String
     
     var body: some View {
         Text(cityName)
-            .font(.system(size: 32,
-                          weight: .medium,
-                          design: .default))
+            .font(.system(size: 32, weight: .medium, design: .default))
             .foregroundColor(.white)
             .padding()
     }
