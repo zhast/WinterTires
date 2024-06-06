@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+import CoreLocation
 
 struct ContentView: View {
     @StateObject private var weatherViewModel = WeatherViewModel()
+    @StateObject private var locationManager = LocationManager()
     
     var body: some View {
         ZStack {
@@ -17,7 +19,7 @@ struct ContentView: View {
             
             VStack {
                 
-                CityView(cityName: "Your Car Should Have:")
+                LargeText(cityName: "Your Car Should Have:")
                 
                 if let averageTemperature = calculateAverageTemperature() {
                     // Display summer or winter tires based on temperature
@@ -37,13 +39,20 @@ struct ContentView: View {
                         .foregroundColor(.red)
                 }
                 
-                
-                
                 Spacer() // Pushes text to the top
+                
+                Text("You should change to winter tires when the typical air temperature during your driving times falls to around 45°F (7°C) or lower.")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .padding()
+                
+                Spacer()
                 
             }
             .onAppear {
-                weatherViewModel.fetchWeatherData()
+                if let location = locationManager.lastLocation {
+                    weatherViewModel.fetchWeatherData(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+                }
             }
         }
     }
@@ -111,7 +120,7 @@ struct BackgroundView: View {
     }
 }
 
-struct CityView: View {
+struct LargeText: View {
     var cityName: String
     
     var body: some View {
