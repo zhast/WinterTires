@@ -24,7 +24,7 @@ class WeatherViewModel: ObservableObject {
     @Published var weatherData: WeatherData?
     
     func fetchWeatherData() {
-        let apiKey = "STQ5TZGK3HPMZG6EFXM7NT4GJ"
+        let apiKey = "RSRXZ4LGALVK4AV5ML3N6CC2A"
         let urlString = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/san%20francisco/last7days?unitGroup=metric&elements=datetime%2Cname%2Caddress%2CresolvedAddress%2Clatitude%2Clongitude%2Ctempmax%2Ctempmin%2Ctemp%2Cicon%2Csource&include=days%2Cfcst%2Cobs&key=\(apiKey)&contentType=json"
         
         guard let url = URL(string: urlString) else { return }

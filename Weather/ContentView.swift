@@ -17,35 +17,35 @@ struct ContentView: View {
             // Set background to be blue gradient, ignoring save areas (dynamic island)
             BackgroundView(isNight: $isNight) // Use binding bool ($) for variables that can change within a function
             
-            VStack(spacing: 8) {
-                // Add city name. Remember order of modifiers matter because they pass down their views in order
-                CityView(cityName: "San Francisco, CA") // Adds a default padding for spacing (so it doesn't hug notch)
-                
-//                CurrWeatherView(imageName: "cloud.sun.fill", temperature: 19)
-                
             
-
-
-                VStack {
-                    if let weatherData = weatherViewModel.weatherData {
-                        ForEach(weatherData.days, id: \.datetime) { day in
-                            WeatherDayView(dayOfWeek: getDayOfWeek(from: day.datetime),
-                                           imageName: "cloud.sun.fill",
-                                           temperature: String(format: "%.1f", day.temp))
-                        }
+            
+            VStack {
+                
+                CityView(cityName: "Your Car Should Have:")
+                
+                if let averageTemperature = calculateAverageTemperature() {
+                    // Display summer or winter tires based on temperature
+                    if let temperatureValue = Double(averageTemperature) {
+                        Image(temperatureValue > 7 ? "summer_tires" : "winter_tires")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 180, height: 180)
                     }
-                }
-                .onAppear {
-                    weatherViewModel.fetchWeatherData()
+                    
+                    Text("Average Temperature Last Week: \(averageTemperature)°")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                } else {
+                    Text("Failed to fetch weather data")
+                        .font(.headline)
+                        .foregroundColor(.red)
                 }
                 
-
-
-                    
+                
+                
                 Spacer() // Pushes text to the top
                 
                 Button {
-                    
                     // Toggles between true and false for isNight when pressed
                     isNight.toggle()
                 } label: {
@@ -55,7 +55,27 @@ struct ContentView: View {
                 
                 Spacer()
             }
+            .onAppear {
+                weatherViewModel.fetchWeatherData()
+            }
         }
+    }
+    
+    func calculateAverageTemperature() -> String? {
+        guard let weatherData = weatherViewModel.weatherData else {
+            return nil
+        }
+        
+        var totalTemperature = 0.0
+        
+        for day in weatherData.days {
+            totalTemperature += day.temp
+        }
+        
+        let averageTemperature = totalTemperature / Double(weatherData.days.count)
+        let formattedTemperature = String(format: "%.1f", averageTemperature)
+        
+        return formattedTemperature
     }
 }
 
